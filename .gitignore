@@ -1,0 +1,17 @@
+.git
+.idea
+.svn
+.hg
+CVS
+.DS_Store
+Thumbs.db
+
+.venv
+*.egg-info
+__pycache__
+build
+dist
+.pytest_cache
+
+temp_*
+temp-*
