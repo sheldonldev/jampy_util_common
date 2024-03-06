@@ -1,3 +1,5 @@
-from jampy_util import intelligence
+from jampy_util.intelligence import io
 
-def test_intelligence_io()
+
+def test_intelligence_io():
+    pass

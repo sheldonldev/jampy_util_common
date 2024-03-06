@@ -1,4 +1,4 @@
-from jampy_util import format_now
+from jampy_util.datetime import format_now
 
 
 def test_format_now():

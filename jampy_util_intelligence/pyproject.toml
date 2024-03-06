@@ -22,6 +22,5 @@ file = "LICENSE"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-where = ["src"]
-include = ["jampy_util", "jampy_util.intelligence"]
-exclude = ["tests"]
+where = ["src/"]
+include = ["jampy_util.intelligence"]

@@ -4,13 +4,15 @@ from typing import Any, Callable
 from .__logger import logger
 
 
-def tick_tock(name=None):
+def ticktock(name=None):
     def decorator(fn: Callable):
         def wrapper(*args, **kwargs) -> Any:
             start_time = time.time()
             result = fn(*args, **kwargs)
             elapsed = time.time() - start_time
-            print(f"{fn.__name__ if name is None else name} elapsed time: {elapsed:.6f} secs")
+            print(
+                f"{fn.__name__ if name is None else name} elapsed time: {elapsed:.6f} secs"
+            )
             return result
 
         return wrapper
@@ -27,7 +29,9 @@ def retry(max_attempts: int, delay: int):
                 try:
                     return fn(*args, **kwargs)
                 except Exception as e:
-                    logger.error(f'Attempt {attempts + 1} failed. Retrying {delay} seconds.')
+                    logger.error(
+                        f'Attempt {attempts + 1} failed. Retrying {delay} seconds.'
+                    )
                     attempts += 1
                     time.sleep(delay)
                     error = e

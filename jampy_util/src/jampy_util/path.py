@@ -24,7 +24,9 @@ def parse_path_str(
         absolute_path = get_absolute_cwd_path().joinpath(name)
     else:
         absolute_path = Path(
-            posixpath.normpath(get_absolute_cwd_path().joinpath(parent).joinpath(name))
+            posixpath.normpath(
+                get_absolute_cwd_path().joinpath(parent).joinpath(name)
+            )
         )
     return name, absolute_path
 
