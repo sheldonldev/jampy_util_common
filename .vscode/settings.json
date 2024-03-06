@@ -11,7 +11,8 @@
     "python.testing.pytestArgs": [
         "-v",
         "--capture=no",
-        ".",
+        "jampy_util/tests",
+        "jampy_util_intelligence/tests",
     ],
     // type checking
     "python.analysis.typeCheckingMode": "basic",

@@ -3,11 +3,7 @@
 ## Development
 
 ```bash
-# install jampy_util
-pip install "./jampy_util[dev]"
-
-# install intelligence subpackge
-pip install "./jampy_util_intelligence"
+bash install_local.sh
 
 # TODO
 # deditable installation not available for intelligence
@@ -17,5 +13,6 @@ pip install "./jampy_util_intelligence"
 
 ```sh
 python -m pip install --upgrade build
-# python -m build
+
+bash build.sh
 ```
