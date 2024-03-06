@@ -1,9 +1,9 @@
 from typing import Dict
 
-from jampy_util import package
+from jampy_util.package import get_package_info
 
 
 def test_get_package_info():
-    info = package.get_info('pip')
+    info = get_package_info('pip')
     assert isinstance(info, Dict)
     assert info.get('name') == 'pip'

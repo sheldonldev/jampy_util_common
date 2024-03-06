@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from jampy_util.path import get_absolute_cwd_path, parse_path_str
+from jampy_util.path import get_absolute_cwd_path, normalize_path
 
 
 def test_get_absolute_cwd_path():
@@ -10,8 +10,8 @@ def test_get_absolute_cwd_path():
     assert './' not in str(cwd_path)
 
 
-def test_parse_path_str():
-    name, abs_path = parse_path_str('./')
+def test_normalize_path():
+    name, abs_path = normalize_path('./')
     assert isinstance(name, str)
     assert isinstance(abs_path, Path)
     assert str(abs_path).endswith(name)

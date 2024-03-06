@@ -4,10 +4,13 @@
 
 ```bash
 # install jampy_util
-pip install -e "./jampy_util[dev]"
+pip install "./jampy_util[dev]"
 
 # install intelligence subpackge
-pip install -e "./jampy_util_intelligence
+pip install "./jampy_util_intelligence"
+
+# TODO
+# deditable installation not available for intelligence
 ```
 
 ## Build
