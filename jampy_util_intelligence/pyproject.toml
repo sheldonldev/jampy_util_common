@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "jampy_util_intelligence"
+version = "0.0.1"
+description = "..."
+readme = "README.md"
+requires-python = ">=3.12"
+classifiers = ["Programming Language :: Python :: 3", "Operating System :: OS Independent"]
+dependencies = ["opencv-python", "numpy"]
+
+[[project.authors]]
+name = "Sheldon Lee"
+email = "sheldonlee@outlook.com"
+
+[project.license]
+file = "LICENSE"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["jampy_util", "jampy_util.intelligence"]
+exclude = ["tests"]

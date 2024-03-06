@@ -1,15 +1,16 @@
 [build-system]
-requires = [ "setuptools",]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "jampy_utils"
+name = "jampy_util"
 version = "0.0.1"
 description = "..."
 readme = "README.md"
 requires-python = ">=3.12"
-classifiers = [ "Programming Language :: Python :: 3", "Operating System :: OS Independent",]
-dependencies = []
+classifiers = ["Programming Language :: Python :: 3", "Operating System :: OS Independent"]
+dependencies = ["colorlog", "natsort"]
+
 [[project.authors]]
 name = "Sheldon Lee"
 email = "sheldonlee@outlook.com"
@@ -18,15 +19,11 @@ email = "sheldonlee@outlook.com"
 file = "LICENSE"
 
 [project.optional-dependencies]
-dev = [ "build", "pytest", "mypy",]
-
-[project.scripts]
-run = "jampy_utils.main:main"
+dev = ["build", "pytest", "mypy"]
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.packages.find]
-where = [ "src",]
-include = [ "jampy_utils*",]
-exclude = [ "tests",]
+where = ["src/"]
+include = ["jampy_util"]

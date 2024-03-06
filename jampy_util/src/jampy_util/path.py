@@ -1,7 +1,9 @@
 import os
 import posixpath
 from pathlib import Path
-from typing import Callable, Optional, Tuple
+from typing import Callable, Iterable, List, Optional, Tuple
+
+import natsort
 
 
 def parse_path_str(
@@ -29,3 +31,7 @@ def parse_path_str(
 
 def get_absolute_cwd_path() -> Path:
     return Path(os.path.abspath(os.getcwd()))
+
+
+def sort_paths(path_iter: Iterable[Path]) -> List[Path]:
+    return natsort.natsorted(list(path_iter), key=lambda x: str(x))

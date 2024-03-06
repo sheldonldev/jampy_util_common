@@ -1,4 +1,4 @@
-from jampy_utils.singleton import SingletonMixin
+from jampy_util.singleton import SingletonMixin
 
 
 def test_singleton():

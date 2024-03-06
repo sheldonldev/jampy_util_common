@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from jampy_utils.path import get_absolute_cwd_path, parse_path_str
+from jampy_util.path import get_absolute_cwd_path, parse_path_str
 
 
 def test_get_absolute_cwd_path():
