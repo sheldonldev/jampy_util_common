@@ -1,7 +1,7 @@
 import time
 from math import isclose
 
-from jampy_util.decorator import ticktock
+from util_common.decorator import ticktock
 
 
 def test_ticktock():

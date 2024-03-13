@@ -3,7 +3,7 @@ from pathlib import Path
 
 from pytest import fixture
 
-from jampy_util.path import normalize_path
+from util_common.path import normalize_path
 
 
 def reinstall(root_str: str):

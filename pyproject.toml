@@ -3,7 +3,7 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "jampy_util"
+name = "util_common"
 version = "0.0.1"
 description = "..."
 readme = "README.md"
@@ -26,4 +26,4 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src/"]
-include = ["jampy_util"]
+include = ["util_common"]

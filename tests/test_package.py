@@ -1,6 +1,6 @@
 from typing import Dict
 
-from jampy_util.package import get_package_info
+from util_common.package import get_package_info
 
 
 def test_get_package_info():
