@@ -10,7 +10,7 @@ def get_package_info(package_name: str) -> Dict:
         raise e
 
 
-def does_package_exist(package_name: str) -> bool:
+def package_exists(package_name: str) -> bool:
     try:
         __import__(package_name)
         return True
