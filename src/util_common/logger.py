@@ -47,20 +47,21 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         super().add_fields(log_record, record, message_dict)
         with suppress(KeyError):
             del log_record['color_message']
+        log_record['timezone'] = 'UTC'
 
 
-def setup_loggers(log_settings_list: Sequence[Optional[LogSettings]]):
+def setup_loggers(log_settings_list: Sequence[Optional[LogSettings]]) -> None:
     setup_basic_log_config()
     for log_settings in log_settings_list:
         configure_logger(log_settings)
 
 
-def setup_logger(log_settings: Optional[LogSettings] = None):
+def setup_logger(log_settings: Optional[LogSettings] = None) -> None:
     setup_basic_log_config()
     configure_logger(log_settings)
 
 
-def configure_logger(log_settings: Optional[LogSettings]):
+def configure_logger(log_settings: Optional[LogSettings]) -> None:
     if log_settings is None:
         _configure_logger()
     else:
