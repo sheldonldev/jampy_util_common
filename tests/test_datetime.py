@@ -2,5 +2,5 @@ from util_common.datetime import format_now
 
 
 def test_format_now():
-    assert 'UTC' in format_now()
-    assert 'UTC' not in format_now(utc=False)
+    assert format_now().endswith('Z')
+    assert not format_now(utc=False).endswith('Z')

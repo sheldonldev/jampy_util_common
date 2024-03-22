@@ -38,3 +38,16 @@ def get_absolute_cwd_path() -> Path:
 
 def sort_paths(path_iter: Iterable[Path]) -> List[Path]:
     return natsort.natsorted(list(path_iter), key=lambda x: str(x))
+
+
+def basename(path: str | Path) -> str:
+    return os.path.basename(str(path))
+
+
+def basename_without_extension(path: str | Path) -> str:
+    return os.path.splitext(basename(path))[0]
+
+
+def recursive_list_files(folder: str | Path, filename: str) -> List[str]:
+    paths = Path(folder).glob(f'**/{filename}')
+    return [str(path) for path in paths]
