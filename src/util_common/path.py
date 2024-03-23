@@ -1,9 +1,41 @@
 import os
 import posixpath
+from enum import StrEnum
 from pathlib import Path
 from typing import Callable, Iterable, List, Optional, Tuple, Union
 
 import natsort
+
+
+class FileExtension(StrEnum):
+    _7Z = "7z"
+    RAR = "rar"
+    ZIP = "zip"
+    DOC = "doc"
+    DOCX = "docx"
+    XLS = "xls"
+    XLSX = "xlsx"
+    JPG = "jpg"
+    PNG = "png"
+    PDF = "pdf"
+
+
+ARCHIVE_EXTS = [
+    FileExtension._7Z.value,
+    FileExtension.RAR.value,
+    FileExtension.ZIP.value,
+]
+DOCUMENT_EXTS = [
+    FileExtension.DOC.value,
+    FileExtension.DOCX.value,
+    FileExtension.XLS.value,
+    FileExtension.XLSX.value,
+    FileExtension.PNG.value,
+    FileExtension.JPG.value,
+    FileExtension.PDF.value,
+]
+
+IGNORE_NAMES = ["__MACOSX", ".DS_Store"]
 
 
 def normalize_path(
@@ -48,6 +80,6 @@ def basename_without_extension(path: str | Path) -> str:
     return os.path.splitext(basename(path))[0]
 
 
-def recursive_list_files(folder: str | Path, filename: str) -> List[str]:
+def recursive_list_named_files(folder: str | Path, filename: str) -> List[str]:
     paths = Path(folder).glob(f'**/{filename}')
     return [str(path) for path in paths]

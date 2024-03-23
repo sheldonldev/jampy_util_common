@@ -1,8 +1,6 @@
 import time
 from typing import Any, Callable
 
-from .__logger import logger
-
 
 def ticktock(name=None):
     def decorator(fn: Callable):
@@ -10,7 +8,7 @@ def ticktock(name=None):
             start_time = time.time()
             result = fn(*args, **kwargs)
             elapsed = time.time() - start_time
-            print(
+            logger.info(
                 f"{fn.__name__ if name is None else name} elapsed time: {elapsed:.6f} secs"
             )
             return result

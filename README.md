@@ -3,7 +3,7 @@
 ## Development
 
 ```bash
-bash install_local.sh
+bash install_dev.sh
 ```
 
 ## Build
