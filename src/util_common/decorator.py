@@ -1,6 +1,8 @@
 import time
 from typing import Any, Callable
 
+from ._log import log
+
 
 def ticktock(name=None):
     def decorator(fn: Callable):
@@ -8,7 +10,7 @@ def ticktock(name=None):
             start_time = time.time()
             result = fn(*args, **kwargs)
             elapsed = time.time() - start_time
-            logger.info(
+            log.info(
                 f"{fn.__name__ if name is None else name} elapsed time: {elapsed:.6f} secs"
             )
             return result
@@ -27,7 +29,7 @@ def retry(max_attempts: int, delay: int):
                 try:
                     return fn(*args, **kwargs)
                 except Exception as e:
-                    logger.error(
+                    log.error(
                         f'Attempt {attempts + 1} failed. Retrying {delay} seconds.'
                     )
                     attempts += 1
