@@ -24,6 +24,24 @@ def str_to_bytes(text: str, encoding="utf-8") -> bytes:
     return bytes(text, encoding=encoding)
 
 
+def parse_bool(value: str | int | bool) -> bool:
+    if isinstance(value, bool) or isinstance(value, int):
+        return bool(value)
+    return value.lower().startswith("t") or value.lower().startswith("y")
+
+
+def parse_int(value: str | int | float) -> int:
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    if isinstance(value, str):
+        try:
+            return int(value)
+        except Exception as e:
+            raise e
+
+
 def guess_file_extension(file: bytes) -> Optional[str]:
     # TODO: 如果结果与实际不符，需要进一步更正。
     # 用libreoffice 查看media-type:

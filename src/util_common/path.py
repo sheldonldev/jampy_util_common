@@ -3,7 +3,7 @@ import posixpath
 import shutil
 from enum import StrEnum
 from pathlib import Path
-from typing import Callable, Iterable, List, Optional, Tuple, Union
+from typing import Callable, Iterable, List, Optional, Tuple
 
 import natsort
 from rich.prompt import Prompt
@@ -43,7 +43,7 @@ IGNORE_NAMES = ["__MACOSX", ".DS_Store"]
 
 
 def normalize_path(
-    raw_path: Union[str, Path],
+    raw_path: str | Path,
     name_process_fn: Optional[Callable] = None,
 ) -> Tuple[str, Path]:
     if isinstance(raw_path, str):
