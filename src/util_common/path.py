@@ -1,45 +1,47 @@
 import os
 import posixpath
 import shutil
-from enum import StrEnum
 from pathlib import Path
-from typing import Callable, Iterable, List, Optional, Tuple
+from typing import Callable, Iterable, List, Literal, Optional, Tuple
 
 import natsort
 from rich.prompt import Prompt
 
 from ._log import log
 
-
-class FileExtension(StrEnum):
-    _7Z = "7z"
-    RAR = "rar"
-    ZIP = "zip"
-    DOC = "doc"
-    DOCX = "docx"
-    XLS = "xls"
-    XLSX = "xlsx"
-    JPG = "jpg"
-    PNG = "png"
-    PDF = "pdf"
-
-
-ARCHIVE_EXTS = [
-    FileExtension._7Z.value,
-    FileExtension.RAR.value,
-    FileExtension.ZIP.value,
-]
-DOCUMENT_EXTS = [
-    FileExtension.DOC.value,
-    FileExtension.DOCX.value,
-    FileExtension.XLS.value,
-    FileExtension.XLSX.value,
-    FileExtension.PNG.value,
-    FileExtension.JPG.value,
-    FileExtension.PDF.value,
+FileExt = Literal[
+    "7z",
+    "rar",
+    "zip",
+    "doc",
+    "docx",
+    "xls",
+    "xlsx",
+    "jpg",
+    "png",
+    "pdf",
 ]
 
-IGNORE_NAMES = ["__MACOSX", ".DS_Store"]
+
+ARCHIVE_EXTS: List[FileExt] = [
+    '7z',
+    'rar',
+    'zip',
+]
+DOCUMENT_EXTS: List[FileExt] = [
+    'doc',
+    'docx',
+    "xls",
+    'xlsx',
+    'png',
+    'jpg',
+    'pdf',
+]
+
+IGNORE_NAMES = [
+    "__MACOSX",
+    ".DS_Store",
+]
 
 
 def normalize_path(

@@ -8,7 +8,7 @@ import magic
 import patoolib  # type: ignore
 
 from ._log import log
-from .path import ARCHIVE_EXTS, DOCUMENT_EXTS, IGNORE_NAMES, FileExtension
+from .path import ARCHIVE_EXTS, DOCUMENT_EXTS, IGNORE_NAMES, FileExt
 
 
 def json_to_bytes(
@@ -42,7 +42,7 @@ def parse_int(value: str | int | float) -> int:
             raise e
 
 
-def guess_file_extension(file: bytes) -> Optional[str]:
+def guess_file_extension(file: bytes) -> Optional[FileExt]:
     # TODO: 如果结果与实际不符，需要进一步更正。
     # 用libreoffice 查看media-type:
     # https://wiki.documentfoundation.org/Macros/Python_Guide/Introduction
@@ -50,42 +50,42 @@ def guess_file_extension(file: bytes) -> Optional[str]:
     mime = magic.from_buffer(file, mime=True).lower()
 
     if "zip" in mime:
-        return FileExtension.ZIP.value
+        return 'zip'
 
     if "rar" in mime:
-        return FileExtension.RAR.value
+        return 'rar'
 
     if "7z" in mime:
-        return FileExtension._7Z.value
+        return '7z'
 
     if "word" in mime and "document" not in mime:
-        return FileExtension.DOC.value
+        return 'doc'
 
     if "word" in mime and "document" in mime:
-        return FileExtension.DOCX.value
+        return 'docx'
 
     if "excel" in mime:
-        return FileExtension.XLS.value
+        return 'xls'
 
     if "sheet" in mime:
-        return FileExtension.XLSX.value
+        return 'xlsx'
 
     if "jpeg" in mime or "jpg" in mime:
-        return FileExtension.JPG.value
+        return 'jpg'
 
     if "png" in mime:
-        return FileExtension.PNG.value
+        return 'png'
 
     if "pdf" in mime:
-        return FileExtension.PDF.value
+        return 'pdf'
 
     return None
 
 
 def recursive_yield_file_bytes(
     folder_path,
-    include_archive_exts: List[str] = ARCHIVE_EXTS,
-    include_document_exts: List[str] = DOCUMENT_EXTS,
+    include_archive_exts: List[FileExt] = ARCHIVE_EXTS,
+    include_document_exts: List[FileExt] = DOCUMENT_EXTS,
 ) -> Iterable[Tuple[bytes, str]]:
     """Recursively yield file bytes from a folder.
 
@@ -116,8 +116,8 @@ def recursive_yield_file_bytes(
 def yield_files_from_archive(
     archive: bytes,
     password: Optional[str] = None,
-    include_archive_exts: List[str] = ARCHIVE_EXTS,
-    include_document_exts: List[str] = DOCUMENT_EXTS,
+    include_archive_exts: List[FileExt] = ARCHIVE_EXTS,
+    include_document_exts: List[FileExt] = DOCUMENT_EXTS,
     recursive: bool = False,
 ) -> Iterable[Tuple[bytes, str]]:
     """Yield file bytes from archive
