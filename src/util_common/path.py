@@ -51,15 +51,13 @@ def normalize_path(
     )
     if name_process_fn is not None:
         name = name_process_fn(name)
-    if root == '/':
+    if root == "/":
         absolute_path = Path(parent).joinpath(name)
-    elif parent == '.':
+    elif parent == ".":
         absolute_path = get_absolute_cwd_path().joinpath(name)
     else:
         absolute_path = Path(
-            posixpath.normpath(
-                get_absolute_cwd_path().joinpath(parent).joinpath(name)
-            )
+            posixpath.normpath(get_absolute_cwd_path().joinpath(parent).joinpath(name))
         )
     return name, absolute_path
 
@@ -81,5 +79,5 @@ def basename_without_extension(path: str | Path) -> str:
 
 
 def recursive_list_named_files(folder: str | Path, filename: str) -> List[str]:
-    paths = Path(folder).glob(f'**/{filename}')
+    paths = Path(folder).glob(f"**/{filename}")
     return [str(path) for path in paths]

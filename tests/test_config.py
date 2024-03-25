@@ -1,7 +1,8 @@
-from util_common import _config
+from util_common import _cfg
 
-if __name__ == '__main__':
-    for name in dir(_config):
-        attr = getattr(_config, name)
+
+def test_cfg():
+    for name in dir(_cfg):
+        attr = getattr(_cfg, name)
         if name.isupper() and not callable(attr):
             print(f"{name}: {attr}")
