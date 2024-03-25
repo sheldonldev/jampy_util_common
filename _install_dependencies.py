@@ -6,7 +6,7 @@ from typing import List, Optional
 
 import toml
 
-from util_common.package import is_dpkg_installed
+from util_common.sys import is_dpkg_installed
 
 PROJECT_DIR = Path(__file__).parent
 
