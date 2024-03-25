@@ -19,7 +19,7 @@ email = "sheldonlee@outlook.com"
 file = "LICENSE"
 
 [project.optional-dependencies]
-dev = ["build", "pytest", "mypy", "types-toml"]
+dev = ["build", "pytest", "mypy", "types-toml", "pre-commit"]
 
 [tool.setuptools]
 include-package-data = true

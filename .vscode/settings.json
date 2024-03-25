@@ -9,6 +9,7 @@
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "python.testing.pytestArgs": [
+        "-s",
         "--collect-only",
     ],
     // type checking
