@@ -6,12 +6,17 @@ from typing import List, Optional
 
 import toml
 
+from util_common.package import is_dpkg_installed
+
 PROJECT_DIR = Path(__file__).parent
 
 
 def get_sys_dependencies() -> List[str]:
     toml_cfg = toml.loads(PROJECT_DIR.joinpath('pyproject.toml').read_text())
-    return toml_cfg.get('tool', {}).get('sys-dependencies', {}).get('apt', [])
+    sys_dpkgs = (
+        toml_cfg.get('tool', {}).get('sys-dependencies', {}).get('apt', [])
+    )
+    return [x for x in list(sys_dpkgs) if not is_dpkg_installed(x)]
 
 
 def install_sys_dependencies(
