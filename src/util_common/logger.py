@@ -1,40 +1,35 @@
 import logging
+import sys
 import time
-from contextlib import suppress
-from enum import Enum
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from typing import Any, Dict, Optional, Sequence
+from typing import Any, Dict, Literal, Optional, Sequence
 
+import colorlog
 from pydantic import BaseModel
 from pythonjsonlogger import jsonlogger
 from rich.logging import RichHandler
 
-
-class LogLevel(Enum):
-    DEBUG = "DEBUG"
-    INFO = "INFO"
-    WARNING = "WARNING"
-    ERROR = "ERROR"
-
+_LogLevel = Literal['debug', 'info', 'warning', 'error']
 
 LOG_FORMAT = (
-    "%(asctime)s"
-    "%(levelname)s"
-    "%(name)s"
-    "%(filename)s"
-    "%(lineno)s"
-    "%(process)d"
-    "%(message)s"
+    "%(blue)s%(asctime)sZ%(reset)s | "
+    "%(log_color)s%(levelname)s%(reset)s | "
+    "%(cyan)s%(name)s:"
+    "%(filename)s:"
+    "%(lineno)s%(reset)s | "
+    "%(log_color)s%(process)d >>> "
+    "%(message)s%(reset)s"
 )
 
-DEFAULT_LEVEL = LogLevel.INFO
+DEFAULT_LEVEL: _LogLevel = 'info'
 
 
 class LogSettings(BaseModel):
     name: Optional[str] = None
-    level: LogLevel = DEFAULT_LEVEL
+    level: _LogLevel = DEFAULT_LEVEL
     save_file_or_dir: Optional[Path] = None
+    rich_handler: bool = True
 
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
@@ -45,9 +40,26 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         message_dict: Dict[str, Any],
     ) -> None:
         super().add_fields(log_record, record, message_dict)
-        with suppress(KeyError):
-            del log_record['color_message']
-        log_record['timezone'] = 'UTC'
+        unwanted_keys = set(log_record.keys()) - set(
+            [
+                'asctime',
+                'levelname',
+                'name',
+                'filename',
+                'lineno',
+                'process',
+                'message',
+            ]
+        )
+        for k in unwanted_keys:
+            del log_record[k]
+
+
+def get_stream_handler() -> logging.StreamHandler:
+    formatter = colorlog.ColoredFormatter(LOG_FORMAT)
+    stream_handler = logging.StreamHandler(sys.stderr)
+    stream_handler.setFormatter(formatter)
+    return stream_handler
 
 
 def setup_loggers(log_settings_list: Sequence[Optional[LogSettings]]) -> None:
@@ -66,7 +78,10 @@ def configure_logger(log_settings: Optional[LogSettings]) -> None:
         _configure_logger()
     else:
         _configure_logger(
-            log_settings.name, log_settings.level, log_settings.save_file_or_dir
+            log_settings.name,
+            log_settings.level,
+            log_settings.save_file_or_dir,
+            log_settings.rich_handler,
         )
 
 
@@ -77,23 +92,28 @@ def setup_basic_log_config() -> None:
 
 def _configure_logger(
     name: Optional[str] = None,
-    level: LogLevel = DEFAULT_LEVEL,
+    level: _LogLevel = DEFAULT_LEVEL,
     save_file_or_dir: Optional[Path] = None,
+    rich_handler: bool = True,
 ) -> None:
     logger = _init_logger(name, level)
 
-    logger.addHandler(
-        RichHandler(
-            rich_tracebacks=True,
-            show_time=True,
-            omit_repeated_times=True,
-            show_level=True,
-            show_path=True,
-            enable_link_path=True,
+    if rich_handler is True:
+        logger.addHandler(
+            RichHandler(
+                rich_tracebacks=True,
+                show_time=True,
+                omit_repeated_times=True,
+                show_level=True,
+                show_path=True,
+                enable_link_path=True,
+            )
         )
-    )
+    else:
+        logger.addHandler(get_stream_handler())
+
     if save_file_or_dir is not None:
-        log_file = _create_log_file(save_file_or_dir)
+        log_file = _create_log_file(save_file_or_dir, name)
         file_handler = RotatingFileHandler(
             filename=str(log_file),
             maxBytes=1048576,
@@ -105,17 +125,20 @@ def _configure_logger(
 
 def _init_logger(
     name: Optional[str] = None,
-    level: LogLevel = DEFAULT_LEVEL,
+    level: _LogLevel = DEFAULT_LEVEL,
 ) -> logging.Logger:
     logger = logging.getLogger(name)
-    logger.setLevel(getattr(logging, level.value.upper()))
+    logger.setLevel(getattr(logging, level.upper()))
     logger.handlers.clear()
     logger.propagate = False
     return logger
 
 
-def _create_log_file(log_path: Path) -> Path:
+def _create_log_file(log_path: Path, name: Optional[str]) -> Path:
     if log_path.is_dir():
-        log_path = log_path.joinpath('log')
+        if name is None:
+            log_path = log_path.joinpath('log')
+        else:
+            log_path = log_path.joinpath(f'{name}.log')
     log_path.parent.mkdir(exist_ok=True, parents=True)
     return log_path

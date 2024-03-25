@@ -9,7 +9,15 @@ description = "..."
 readme = "README.md"
 requires-python = ">=3.12"
 classifiers = ["Programming Language :: Python :: 3", "Operating System :: OS Independent"]
-dependencies = ["rich", "natsort", "python-magic", "python-json-logger", "pydantic", "patool"]
+dependencies = [
+    "rich",
+    "natsort",
+    "python-magic",
+    "python-json-logger",
+    "pydantic",
+    "patool",
+    "colorlog",
+]
 
 [[project.authors]]
 name = "Sheldon Lee"
