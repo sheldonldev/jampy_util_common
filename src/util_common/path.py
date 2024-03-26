@@ -32,6 +32,7 @@ ARCHIVE_EXTS: List[FileExt] = [
     'rar',
     'zip',
 ]
+
 DOCUMENT_EXTS: List[FileExt] = [
     'doc',
     'docx',
