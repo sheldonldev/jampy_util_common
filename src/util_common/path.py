@@ -22,6 +22,10 @@ FileExt = Literal[
     "pdf",
 ]
 
+ImageExt = Literal[
+    'jpg',
+    'png',
+]
 
 ARCHIVE_EXTS: List[FileExt] = [
     '7z',
@@ -131,6 +135,8 @@ def basename_without_extension(path: str | Path) -> str:
     return os.path.splitext(basename(path))[0]
 
 
-def recursive_list_named_files(folder: str | Path, filename: str) -> List[str]:
+def recursive_list_named_children(
+    folder: str | Path, filename: str
+) -> List[str]:
     paths = Path(folder).glob(f"**/{filename}")
     return [str(path) for path in paths]

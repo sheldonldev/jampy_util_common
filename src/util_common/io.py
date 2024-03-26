@@ -2,7 +2,7 @@ import json
 import os
 import tempfile
 from pathlib import Path
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import magic
 import patoolib  # type: ignore
@@ -50,43 +50,43 @@ def guess_file_extension(file: bytes) -> Optional[FileExt]:
     mime = magic.from_buffer(file, mime=True).lower()
 
     if "zip" in mime:
-        return 'zip'
+        return "zip"
 
     if "rar" in mime:
-        return 'rar'
+        return "rar"
 
     if "7z" in mime:
-        return '7z'
+        return "7z"
 
     if "word" in mime and "document" not in mime:
-        return 'doc'
+        return "doc"
 
     if "word" in mime and "document" in mime:
-        return 'docx'
+        return "docx"
 
     if "excel" in mime:
-        return 'xls'
+        return "xls"
 
     if "sheet" in mime:
-        return 'xlsx'
+        return "xlsx"
 
     if "jpeg" in mime or "jpg" in mime:
-        return 'jpg'
+        return "jpg"
 
     if "png" in mime:
-        return 'png'
+        return "png"
 
     if "pdf" in mime:
-        return 'pdf'
+        return "pdf"
 
     return None
 
 
 def recursive_yield_file_bytes(
     folder_path,
-    include_archive_exts: List[FileExt] = ARCHIVE_EXTS,
-    include_document_exts: List[FileExt] = DOCUMENT_EXTS,
-) -> Iterable[Tuple[bytes, str]]:
+    include_archive_exts: Sequence[FileExt] = ARCHIVE_EXTS,
+    include_document_exts: Sequence[FileExt] = DOCUMENT_EXTS,
+) -> Iterable[Tuple[bytes, FileExt]]:
     """Recursively yield file bytes from a folder.
 
     include_archive_exts:
@@ -99,27 +99,27 @@ def recursive_yield_file_bytes(
             file_path = os.path.join(root, file_name)
             file_bytes = Path(file_path).read_bytes()
             ext = guess_file_extension(file_bytes)
-            if ext in include_document_exts:
+            if ext is not None and ext in include_document_exts:
                 yield file_bytes, ext
 
             if ext in include_archive_exts:
-                for bytes_ext_pair in yield_files_from_archive(
+                for _file_bytes, _ext in yield_files_from_archive(
                     file_bytes,
                     ext,
                     include_archive_exts=include_archive_exts,
                     include_document_exts=include_document_exts,
                     recursive=True,
                 ):
-                    yield bytes_ext_pair
+                    yield _file_bytes, _ext
 
 
 def yield_files_from_archive(
     archive: bytes,
     password: Optional[str] = None,
-    include_archive_exts: List[FileExt] = ARCHIVE_EXTS,
-    include_document_exts: List[FileExt] = DOCUMENT_EXTS,
+    include_archive_exts: Sequence[FileExt] = ARCHIVE_EXTS,
+    include_document_exts: Sequence[FileExt] = DOCUMENT_EXTS,
     recursive: bool = False,
-) -> Iterable[Tuple[bytes, str]]:
+) -> Iterable[Tuple[bytes, FileExt]]:
     """Yield file bytes from archive
 
     include_exts:
@@ -135,7 +135,6 @@ def yield_files_from_archive(
             delete=True,
             prefix=tmp_prefix,
         ) as tmp_dirname:
-            # outdir = Path(tmp_dirname).joinpath(format_now())
             with tempfile.NamedTemporaryFile(
                 delete=True,
                 suffix=f".{arch_suffix}",
@@ -156,9 +155,9 @@ def yield_files_from_archive(
                     include_archive_exts = (
                         [] if recursive is False else include_archive_exts
                     )
-                    for bytes_ext_pair in recursive_yield_file_bytes(
+                    for file_bytes, ext in recursive_yield_file_bytes(
                         folder_path=tmp_dirname,
                         include_archive_exts=include_archive_exts,
                         include_document_exts=include_document_exts,
                     ):
-                        yield bytes_ext_pair
+                        yield file_bytes, ext
