@@ -10,7 +10,22 @@ from pydantic import BaseModel
 from pythonjsonlogger import jsonlogger
 from rich.logging import RichHandler
 
-_LogLevel = Literal['debug', 'info', 'warning', 'error']
+_LogLevel = Literal[
+    'debug',
+    'info',
+    'warning',
+    'error',
+]
+
+LOG_KEYS = [
+    'asctime',
+    'levelname',
+    'name',
+    'filename',
+    'lineno',
+    'log_color',
+    'message',
+]
 
 LOG_FORMAT = (
     "%(blue)s%(asctime)sZ%(reset)s | "
@@ -40,17 +55,7 @@ class CustomJsonFormatter(jsonlogger.JsonFormatter):
         message_dict: Dict[str, Any],
     ) -> None:
         super().add_fields(log_record, record, message_dict)
-        unwanted_keys = set(log_record.keys()) - set(
-            [
-                'asctime',
-                'levelname',
-                'name',
-                'filename',
-                'lineno',
-                'process',
-                'message',
-            ]
-        )
+        unwanted_keys = set(log_record.keys()) - set(LOG_KEYS)
         for k in unwanted_keys:
             del log_record[k]
 
