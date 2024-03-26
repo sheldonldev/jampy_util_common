@@ -9,9 +9,9 @@ def is_dpkg_installed(package_name):
     """
     try:
         # If the package is installed,
-        # dpkg -s will output details about it
-        # If the package is not installed
-        # dpkg -s will return a non-zero exit code
+        # dpkg -s will output details about it;
+        # If the package is not installed,
+        # dpkg -s will return a non-zero exit code.
         result = subprocess.run(
             ['dpkg', '-s', package_name],
             stdout=subprocess.PIPE,
