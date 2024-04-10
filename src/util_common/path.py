@@ -22,26 +22,36 @@ FileExt = Literal[
     "pdf",
 ]
 
+
 ImageExt = Literal[
-    'jpg',
-    'png',
+    "jpg",
+    "png",
 ]
 
 ARCHIVE_EXTS: List[FileExt] = [
-    '7z',
-    'rar',
-    'zip',
+    "7z",
+    "rar",
+    "zip",
 ]
 
-DOCUMENT_EXTS: List[FileExt] = [
-    'doc',
-    'docx',
-    "xls",
-    'xlsx',
-    'png',
-    'jpg',
-    'pdf',
+PDF_EXTS: List[FileExt] = [
+    "pdf",
 ]
+
+IMAGE_EXTS: List[ImageExt] = [
+    "jpg",
+    "png",
+]
+
+
+OFFICE_EXTS: List[FileExt] = [
+    "doc",
+    "docx",
+    "xls",
+    "xlsx",
+]
+
+DOCUMENT_EXTS: List[FileExt] = PDF_EXTS + IMAGE_EXTS + OFFICE_EXTS
 
 IGNORE_NAMES = [
     "__MACOSX",
@@ -69,7 +79,7 @@ def normalize_path(
     else:
         absolute_path = Path(
             posixpath.normpath(
-                get_absolute_cwd_path().joinpath(parent).joinpath(name)
+                get_absolute_cwd_path().joinpath(parent).joinpath(name),
             )
         )
     return name, absolute_path
@@ -79,8 +89,14 @@ def get_absolute_cwd_path() -> Path:
     return Path(os.path.abspath(os.getcwd()))
 
 
-def sort_paths(path_iter: Iterable[Path]) -> List[Path]:
-    return natsort.natsorted(list(path_iter), key=lambda x: str(x))
+def sort_paths(path_iter: Iterable[str | Path]) -> List[Path]:
+    return [
+        Path(x)
+        for x in natsort.natsorted(
+            list(path_iter),
+            key=lambda x: str(x),
+        )
+    ]
 
 
 def ensure_dir(
@@ -90,30 +106,30 @@ def ensure_dir(
 ) -> Path:
     path = Path(path)
     if path.exists() and path.is_file():
-        log.warning(f'{path} is already exists, but IsFile!')
+        log.warning(f"{path} is already exists, but IsFile!")
         if force_replace_file == force_use_parent:
             while True:
                 remove = Prompt.ask(
-                    '''Choose an option:
+                    """Choose an option:
                     1. remove the file.
                     2. use the parent folder.
                     3. exit.
-                    '''
+                    """
                 )
-                if remove == '1':
+                if remove == "1":
                     os.remove(path)
-                if remove == '2':
+                if remove == "2":
                     return path.parent
-                if remove == '3':
+                if remove == "3":
                     exit()
         elif force_replace_file:
             log.warning(
-                'In FORCE_REPLACE_FILE mode, the file has been removed!',
+                "In FORCE_REPLACE_FILE mode, the file has been removed!",
             )
             os.remove(path)
         else:
             log.warning(
-                'In FORCE_USE_PARENT mode, the file has been removed!',
+                "In FORCE_USE_PARENT mode, the file has been removed!",
             )
             return path.parent
 
@@ -137,7 +153,14 @@ def basename_without_extension(path: str | Path) -> str:
 
 
 def recursive_list_named_children(
-    folder: str | Path, filename: str
-) -> List[str]:
+    folder: str | Path,
+    filename: str,
+) -> Iterable[Path]:
     paths = Path(folder).glob(f"**/{filename}")
-    return [str(path) for path in paths]
+    return paths
+
+
+def recursive_list_file(folder: str | Path) -> Iterable[Path]:
+    for root, _, files in os.walk(folder):
+        for file_name in [x for x in files if x not in IGNORE_NAMES]:
+            yield Path(os.path.join(root, file_name))

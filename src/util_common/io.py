@@ -83,7 +83,7 @@ def guess_file_extension(file: bytes) -> Optional[FileExt]:
 
 
 def recursive_yield_file_bytes(
-    folder_path,
+    folder_path: str | Path,
     include_archive_exts: Sequence[FileExt] = ARCHIVE_EXTS,
     include_document_exts: Sequence[FileExt] = DOCUMENT_EXTS,
 ) -> Iterable[Tuple[bytes, FileExt]]:

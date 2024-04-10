@@ -11,20 +11,20 @@ from pythonjsonlogger import jsonlogger
 from rich.logging import RichHandler
 
 _LogLevel = Literal[
-    'debug',
-    'info',
-    'warning',
-    'error',
+    "debug",
+    "info",
+    "warning",
+    "error",
 ]
 
 LOG_KEYS = [
-    'asctime',
-    'levelname',
-    'name',
-    'filename',
-    'lineno',
-    'log_color',
-    'message',
+    "asctime",
+    "levelname",
+    "name",
+    "filename",
+    "lineno",
+    "process",
+    "message",
 ]
 
 LOG_FORMAT = (
@@ -37,14 +37,15 @@ LOG_FORMAT = (
     "%(message)s%(reset)s"
 )
 
-DEFAULT_LEVEL: _LogLevel = 'info'
+DEFAULT_LEVEL: _LogLevel = "info"
 
 
 class LogSettings(BaseModel):
     name: Optional[str] = None
     level: _LogLevel = DEFAULT_LEVEL
     save_file_or_dir: Optional[Path] = None
-    rich_handler: bool = True
+    rich_handler: bool = False
+    json_logger: bool = False
 
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
@@ -80,14 +81,8 @@ def setup_logger(log_settings: Optional[LogSettings] = None) -> None:
 
 def configure_logger(log_settings: Optional[LogSettings]) -> None:
     if log_settings is None:
-        _configure_logger()
-    else:
-        _configure_logger(
-            log_settings.name,
-            log_settings.level,
-            log_settings.save_file_or_dir,
-            log_settings.rich_handler,
-        )
+        log_settings = LogSettings()
+    _configure_logger(log_settings)
 
 
 def setup_basic_log_config() -> None:
@@ -96,14 +91,11 @@ def setup_basic_log_config() -> None:
 
 
 def _configure_logger(
-    name: Optional[str] = None,
-    level: _LogLevel = DEFAULT_LEVEL,
-    save_file_or_dir: Optional[Path] = None,
-    rich_handler: bool = True,
+    log_settings: LogSettings,
 ) -> None:
-    logger = _init_logger(name, level)
+    logger = _init_logger(log_settings.name, log_settings.level)
 
-    if rich_handler is True:
+    if log_settings.rich_handler is True:
         logger.addHandler(
             RichHandler(
                 rich_tracebacks=True,
@@ -117,14 +109,20 @@ def _configure_logger(
     else:
         logger.addHandler(get_stream_handler())
 
-    if save_file_or_dir is not None:
-        log_file = _create_log_file(save_file_or_dir, name)
+    if log_settings.save_file_or_dir is not None:
+        log_file = _create_log_file(
+            log_settings.save_file_or_dir,
+            log_settings.name,
+        )
         file_handler = RotatingFileHandler(
             filename=str(log_file),
             maxBytes=1048576,
             backupCount=8,
         )
-        file_handler.setFormatter(CustomJsonFormatter(LOG_FORMAT))
+        if log_settings.json_logger is True:
+            file_handler.setFormatter(CustomJsonFormatter(LOG_FORMAT))
+        else:
+            file_handler.setFormatter(colorlog.ColoredFormatter(LOG_FORMAT))
         logger.addHandler(file_handler)
 
 
@@ -142,8 +140,8 @@ def _init_logger(
 def _create_log_file(log_path: Path, name: Optional[str]) -> Path:
     if log_path.is_dir():
         if name is None:
-            log_path = log_path.joinpath('log')
+            log_path = log_path.joinpath("log")
         else:
-            log_path = log_path.joinpath(f'{name}.log')
+            log_path = log_path.joinpath(f"{name}.log")
     log_path.parent.mkdir(exist_ok=True, parents=True)
     return log_path
