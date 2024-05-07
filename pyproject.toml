@@ -7,7 +7,7 @@ name = "util_common"
 version = "0.0.1"
 description = "..."
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.8"
 classifiers = ["Programming Language :: Python :: 3", "Operating System :: OS Independent"]
 dependencies = [
     "rich",
