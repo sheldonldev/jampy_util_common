@@ -13,7 +13,7 @@ def ticktock(name=None, print_fn=log.info):
             elapsed = time.time() - start_time
             print_fn(
                 (fn.__name__ if name is None else name)
-                + f"elapsed time: {elapsed:.6f} secs"
+                + f" elapsed time: {elapsed:.6f} secs"
             )
             return result
 
