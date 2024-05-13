@@ -5,16 +5,15 @@ from typing import Any, Callable
 from ._log import log
 
 
-def ticktock(name=None):
+def ticktock(name=None, print_fn=log.info):
     def decorator(fn: Callable):
         def wrapper(*args, **kwargs) -> Any:
             start_time = time.time()
             result = fn(*args, **kwargs)
             elapsed = time.time() - start_time
-            log.info(
-                fn.__name__
-                if name is None
-                else name + f"elapsed time: {elapsed:.6f} secs"
+            print_fn(
+                (fn.__name__ if name is None else name)
+                + f"elapsed time: {elapsed:.6f} secs"
             )
             return result
 
