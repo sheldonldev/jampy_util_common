@@ -8,7 +8,14 @@ import magic
 import patoolib  # type: ignore
 
 from ._log import log
-from .path import ARCHIVE_EXTS, DOCUMENT_EXTS, IGNORE_NAMES, FileExt
+from .path import (
+    ARCHIVE_EXTS,
+    DOCUMENT_EXTS,
+    IGNORE_NAMES,
+    FileExt,
+    get_basename_without_extension,
+    guess_extension_from_mime,
+)
 
 
 def json_to_bytes(
@@ -48,38 +55,8 @@ def guess_file_extension(file: bytes) -> Optional[FileExt]:
     # https://wiki.documentfoundation.org/Macros/Python_Guide/Introduction
 
     mime = magic.from_buffer(file, mime=True).lower()
-
-    if "zip" in mime:
-        return "zip"
-
-    if "rar" in mime:
-        return "rar"
-
-    if "7z" in mime:
-        return "7z"
-
-    if "word" in mime and "document" not in mime:
-        return "doc"
-
-    if "word" in mime and "document" in mime:
-        return "docx"
-
-    if "excel" in mime:
-        return "xls"
-
-    if "sheet" in mime:
-        return "xlsx"
-
-    if "jpeg" in mime or "jpg" in mime:
-        return "jpg"
-
-    if "png" in mime:
-        return "png"
-
-    if "pdf" in mime:
-        return "pdf"
-
-    return None
+    ext = guess_extension_from_mime(mime)
+    return ext
 
 
 def recursive_yield_file_bytes(
@@ -99,18 +76,18 @@ def recursive_yield_file_bytes(
             file_path = os.path.join(root, file_name)
             file_bytes = Path(file_path).read_bytes()
             ext = guess_file_extension(file_bytes)
+            file_name = f"{get_basename_without_extension(file_name)}.{ext}"
             if ext is not None and ext in include_document_exts:
-                yield file_bytes, ext
+                yield file_bytes, file_name
 
             if ext in include_archive_exts:
-                for _file_bytes, _ext in yield_files_from_archive(
+                for _file_bytes, _file_name in yield_files_from_archive(
                     file_bytes,
-                    ext,
                     include_archive_exts=include_archive_exts,
                     include_document_exts=include_document_exts,
                     recursive=True,
                 ):
-                    yield _file_bytes, _ext
+                    yield _file_bytes, _file_name
 
 
 def yield_files_from_archive(
@@ -155,9 +132,9 @@ def yield_files_from_archive(
                     include_archive_exts = (
                         [] if recursive is False else include_archive_exts
                     )
-                    for file_bytes, ext in recursive_yield_file_bytes(
+                    for file_bytes, file_name in recursive_yield_file_bytes(
                         folder_path=tmp_dirname,
                         include_archive_exts=include_archive_exts,
                         include_document_exts=include_document_exts,
                     ):
-                        yield file_bytes, ext
+                        yield file_bytes, file_name

@@ -2,56 +2,59 @@ import os
 import posixpath
 import shutil
 from pathlib import Path
-from typing import Callable, Iterable, List, Literal, Optional, Tuple
+from typing import (
+    Callable,
+    Iterable,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    Union,
+    get_args,
+)
 
 import natsort
 from rich.prompt import Prompt
 
 from ._log import log
 
-FileExt = Literal[
+ArchiveExt = Literal[
     "7z",
     "rar",
     "zip",
-    "doc",
-    "docx",
-    "xls",
-    "xlsx",
-    "jpg",
-    "png",
-    "pdf",
 ]
-
+ARCHIVE_EXTS: List[ArchiveExt] = [*get_args(ArchiveExt)]
 
 ImageExt = Literal[
     "jpg",
+    "jpeg",
     "png",
 ]
+IMAGE_EXTS: List[ImageExt] = [*get_args(ImageExt)]
 
-ARCHIVE_EXTS: List[FileExt] = [
-    "7z",
-    "rar",
-    "zip",
-]
+PdfExt = Literal["pdf"]
+PDF_EXTS: List[PdfExt] = [*get_args(PdfExt)]
 
-PDF_EXTS: List[FileExt] = [
-    "pdf",
-]
-
-IMAGE_EXTS: List[ImageExt] = [
-    "jpg",
-    "png",
-]
-
-
-OFFICE_EXTS: List[FileExt] = [
+WordExt = Literal[
     "doc",
     "docx",
+]
+WORD_EXTS: List[WordExt] = [*get_args(WordExt)]
+
+ExcelExt = Literal[
     "xls",
     "xlsx",
 ]
+EXCEL_EXTS: List[ExcelExt] = [*get_args(ExcelExt)]
 
-DOCUMENT_EXTS: List[FileExt] = PDF_EXTS + IMAGE_EXTS + OFFICE_EXTS
+OfficeExt = Union[WordExt, ExcelExt]
+OFFICE_EXTS: List[OfficeExt] = WORD_EXTS + EXCEL_EXTS
+
+DocumentExt = Union[ImageExt, PdfExt, OfficeExt]
+DOCUMENT_EXTS: List[DocumentExt] = IMAGE_EXTS + PDF_EXTS + OFFICE_EXTS
+
+FileExt = Union[ArchiveExt, ImageExt, PdfExt, OfficeExt]
+FILE_EXTS: List[FileExt] = ARCHIVE_EXTS + IMAGE_EXTS + PDF_EXTS + OFFICE_EXTS
 
 IGNORE_NAMES = [
     "__MACOSX",
@@ -144,12 +147,59 @@ def clear_dir(path: Path | str) -> Path:
     return ensure_dir(path, force_replace_file=True)
 
 
-def basename(path: str | Path) -> str:
+def get_parent(path: str | Path) -> str:
+    return os.path.dirname(str(path))
+
+
+def get_basename(path: str | Path) -> str:
     return os.path.basename(str(path))
 
 
-def basename_without_extension(path: str | Path) -> str:
-    return os.path.splitext(basename(path))[0]
+def split_basename(path: str | Path) -> Tuple[str, str]:
+    name, ext = os.path.splitext(get_basename(path))
+    return name, ext.strip(".")
+
+
+def get_basename_without_extension(path: str | Path) -> str:
+    return split_basename(path)[0]
+
+
+def get_extension(path: str | Path) -> str:
+    return split_basename(path)[1]
+
+
+def guess_extension_from_mime(mime: str) -> Optional[FileExt]:
+    if "zip" in mime:
+        return "zip"
+
+    if "rar" in mime:
+        return "rar"
+
+    if "7z" in mime:
+        return "7z"
+
+    if "word" in mime and "document" not in mime:
+        return "doc"
+
+    if "word" in mime and "document" in mime:
+        return "docx"
+
+    if "excel" in mime:
+        return "xls"
+
+    if "sheet" in mime:
+        return "xlsx"
+
+    if "jpeg" in mime or "jpg" in mime:
+        return "jpg"
+
+    if "png" in mime:
+        return "png"
+
+    if "pdf" in mime:
+        return "pdf"
+
+    return None
 
 
 def recursive_list_named_children(
