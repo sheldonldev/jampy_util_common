@@ -50,10 +50,6 @@ def parse_int(value: str | int | float) -> int:
 
 
 def guess_file_extension(content: bytes) -> Optional[FileExt]:
-    # TODO: 如果结果与实际不符，需要进一步更正。
-    # 用libreoffice 查看media-type:
-    # https://wiki.documentfoundation.org/Macros/Python_Guide/Introduction
-
     mime = magic.from_buffer(content, mime=True).lower()
     ext = guess_extension_from_mime(mime)
     return ext
