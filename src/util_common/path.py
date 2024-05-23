@@ -18,6 +18,13 @@ from rich.prompt import Prompt
 
 from ._log import log
 
+TextExt = Literal[
+    "txt",
+    "json",
+    "html",
+]
+TEXT_EXTS: List[TextExt] = [*get_args(TextExt)]
+
 ArchiveExt = Literal[
     "7z",
     "rar",
@@ -50,11 +57,15 @@ EXCEL_EXTS: List[ExcelExt] = [*get_args(ExcelExt)]
 OfficeExt = Union[WordExt, ExcelExt]
 OFFICE_EXTS: List[OfficeExt] = WORD_EXTS + EXCEL_EXTS
 
-DocumentExt = Union[ImageExt, PdfExt, OfficeExt]
-DOCUMENT_EXTS: List[DocumentExt] = IMAGE_EXTS + PDF_EXTS + OFFICE_EXTS
+DocumentExt = Union[TextExt, ImageExt, PdfExt, OfficeExt]
+DOCUMENT_EXTS: List[DocumentExt] = (
+    TEXT_EXTS + IMAGE_EXTS + PDF_EXTS + OFFICE_EXTS
+)
 
-FileExt = Union[ArchiveExt, ImageExt, PdfExt, OfficeExt]
-FILE_EXTS: List[FileExt] = ARCHIVE_EXTS + IMAGE_EXTS + PDF_EXTS + OFFICE_EXTS
+FileExt = Union[ArchiveExt, TextExt, ImageExt, PdfExt, OfficeExt]
+FILE_EXTS: List[FileExt] = (
+    ARCHIVE_EXTS + TEXT_EXTS + IMAGE_EXTS + PDF_EXTS + OFFICE_EXTS
+)
 
 IGNORE_NAMES = [
     "__MACOSX",
