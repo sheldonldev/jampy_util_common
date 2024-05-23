@@ -63,7 +63,7 @@ def recursive_yield_file_bytes(
     folder_path: str | Path,
     include_archive_exts: Sequence[FileExt] = ARCHIVE_EXTS,
     include_document_exts: Sequence[FileExt] = DOCUMENT_EXTS,
-) -> Iterable[Tuple[bytes, FileExt]]:
+) -> Iterable[Tuple[bytes, str]]:
     """Recursively yield file bytes from a folder.
 
     include_archive_exts:
@@ -96,7 +96,7 @@ def yield_files_from_archive(
     include_archive_exts: Sequence[FileExt] = ARCHIVE_EXTS,
     include_document_exts: Sequence[FileExt] = DOCUMENT_EXTS,
     recursive: bool = False,
-) -> Iterable[Tuple[bytes, FileExt]]:
+) -> Iterable[Tuple[bytes, str]]:
     """Yield file bytes from archive
 
     include_exts:
