@@ -2,19 +2,9 @@ import os
 import posixpath
 import shutil
 from pathlib import Path
-from typing import (
-    Callable,
-    Iterable,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    Union,
-    get_args,
-)
+from typing import Callable, Iterable, List, Literal, Optional, Tuple, Union, get_args
 
 import natsort
-from rich.prompt import Prompt
 
 from ._log import log
 
@@ -58,14 +48,10 @@ OfficeExt = Union[WordExt, ExcelExt]
 OFFICE_EXTS: List[OfficeExt] = WORD_EXTS + EXCEL_EXTS
 
 DocumentExt = Union[TextExt, ImageExt, PdfExt, OfficeExt]
-DOCUMENT_EXTS: List[DocumentExt] = (
-    TEXT_EXTS + IMAGE_EXTS + PDF_EXTS + OFFICE_EXTS
-)
+DOCUMENT_EXTS: List[DocumentExt] = TEXT_EXTS + IMAGE_EXTS + PDF_EXTS + OFFICE_EXTS
 
 FileExt = Union[ArchiveExt, TextExt, ImageExt, PdfExt, OfficeExt]
-FILE_EXTS: List[FileExt] = (
-    ARCHIVE_EXTS + TEXT_EXTS + IMAGE_EXTS + PDF_EXTS + OFFICE_EXTS
-)
+FILE_EXTS: List[FileExt] = ARCHIVE_EXTS + TEXT_EXTS + IMAGE_EXTS + PDF_EXTS + OFFICE_EXTS
 
 IGNORE_NAMES = [
     "__MACOSX",
@@ -113,49 +99,40 @@ def sort_paths(path_iter: Iterable[str | Path]) -> List[Path]:
     ]
 
 
-def ensure_dir(
-    path: Path | str,
-    force_replace_file: bool = False,
-    force_use_parent: bool = False,
-) -> Path:
+def remove_file(path: Path | str) -> None:
     path = Path(path)
-    if path.exists() and path.is_file():
-        log.warning(f"{path} is already exists, but IsFile!")
-        if force_replace_file == force_use_parent:
-            while True:
-                remove = Prompt.ask(
-                    """Choose an option:
-                    1. remove the file.
-                    2. use the parent folder.
-                    3. exit.
-                    """
-                )
-                if remove == "1":
-                    os.remove(path)
-                if remove == "2":
-                    return path.parent
-                if remove == "3":
-                    exit()
-        elif force_replace_file:
-            log.warning(
-                "In FORCE_REPLACE_FILE mode, the file has been removed!",
-            )
+    if path.exists():
+        if path.is_file():
             os.remove(path)
         else:
-            log.warning(
-                "In FORCE_USE_PARENT mode, the file has been removed!",
-            )
-            return path.parent
+            log.warning(f"{path} is a folder!")
+    else:
+        log.warning(f"{path} not exists!")
 
-    path.mkdir(parents=True, exist_ok=True)
+
+def remove_folder(path: Path | str) -> None:
+    path = Path(path)
+    if path.exists():
+        if path.is_dir():
+            shutil.rmtree(path)
+        else:
+            log.warning(f"{path} is a file!")
+    else:
+        log.warning(f"{path} not exists!")
+
+
+def ensure_dir(path: Path | str) -> Path:
+    path = Path(path)
+    if (not path.exists()) or path.is_file():
+        path.mkdir(parents=True, exist_ok=True)
     return path
 
 
 def clear_dir(path: Path | str) -> Path:
     path = Path(path)
-    if path.exists() and path.is_dir():
-        shutil.rmtree(path)
-    return ensure_dir(path, force_replace_file=True)
+    remove_folder(path)
+    path.mkdir(parents=True, exist_ok=True)
+    return path
 
 
 def get_parent(path: str | Path) -> str:

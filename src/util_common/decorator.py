@@ -12,8 +12,7 @@ def ticktock(name=None, print_fn=log.info):
             result = fn(*args, **kwargs)
             elapsed = time.time() - start_time
             print_fn(
-                (fn.__name__ if name is None else name)
-                + f" >>> Elapsed time: {elapsed:.6f} secs"
+                (fn.__name__ if name is None else name) + f" >>> Elapsed time: {elapsed:.6f} secs"
             )
             return result
 
@@ -31,10 +30,7 @@ def retry(max_attempts: int, delay: int):
                 try:
                     return fn(*args, **kwargs)
                 except Exception as e:
-                    log.error(
-                        f">>> Attempt {attempts + 1} failed."
-                        + f"Retry in {delay} seconds."
-                    )
+                    log.error(f">>> Attempt {attempts + 1} failed." + f"Retry in {delay} seconds.")
                     attempts += 1
                     time.sleep(delay)
                     error = e

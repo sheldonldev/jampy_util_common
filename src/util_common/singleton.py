@@ -47,15 +47,11 @@ class SingletonMixin:
         :return: the created instance.
         """
         if cls is SingletonMixin:
-            raise TypeError(
-                f"Attempt to instantiate mixin class {cls.__qualname__}"
-            )
+            raise TypeError(f"Attempt to instantiate mixin class {cls.__qualname__}")
 
         if cls._instance is None:
             with cls._rlock:
                 if cls._instance is None and cls._inside_instance:
                     return super().__new__(cls, *args, **kwargs)
 
-        raise RuntimeError(
-            f"Attempt to create a {cls.__qualname__} instance outside of instance()"
-        )
+        raise RuntimeError(f"Attempt to create a {cls.__qualname__} instance outside of instance()")

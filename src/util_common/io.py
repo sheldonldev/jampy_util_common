@@ -49,12 +49,12 @@ def parse_int(value: str | int | float) -> int:
             raise e
 
 
-def guess_file_extension(file: bytes) -> Optional[FileExt]:
+def guess_file_extension(content: bytes) -> Optional[FileExt]:
     # TODO: 如果结果与实际不符，需要进一步更正。
     # 用libreoffice 查看media-type:
     # https://wiki.documentfoundation.org/Macros/Python_Guide/Introduction
 
-    mime = magic.from_buffer(file, mime=True).lower()
+    mime = magic.from_buffer(content, mime=True).lower()
     ext = guess_extension_from_mime(mime)
     return ext
 
@@ -129,9 +129,7 @@ def yield_files_from_archive(
                 except Exception as e:
                     log.warning(e)
                 finally:
-                    include_archive_exts = (
-                        [] if recursive is False else include_archive_exts
-                    )
+                    include_archive_exts = [] if recursive is False else include_archive_exts
                     for file_bytes, file_name in recursive_yield_file_bytes(
                         folder_path=tmp_dirname,
                         include_archive_exts=include_archive_exts,

@@ -23,10 +23,10 @@
     "isort.check": true,
     "isort.args": [
         "--profile=black",
-        "--line-length=80"
+        "--line-length=100"
     ],
     "black-formatter.args": [
-        "--line-length=80",
+        "--line-length=100",
         "--skip-string-normalization"
     ],
     // linting
@@ -37,7 +37,7 @@
     // Code Spell Checker
     "cSpell.enabled": true,
     "cSpell.language": "en",
-    "cSpell.maxNumberOfProblems": 80,
+    "cSpell.maxNumberOfProblems": 100,
     "cSpell.numSuggestions": 8,
     "cSpell.minWordLength": 4,
     "cSpell.enabledLanguageIds": [
