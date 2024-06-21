@@ -6,12 +6,12 @@ import pytest
 from util_common._cfg import APP_NAME
 from util_common._log import log
 from util_common.logger import LogSettings, setup_logger
-from util_common.path import clear_dir
+from util_common.path import clear_folder
 
 
 @pytest.fixture(scope='module')
 def log_dir(data_root: Path):
-    yield clear_dir(data_root.joinpath('log'))
+    yield clear_folder(data_root.joinpath('log'))
 
 
 def test_log(log_dir: Path):

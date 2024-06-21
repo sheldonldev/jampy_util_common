@@ -34,7 +34,7 @@ include-package-data = true
 
 [tool.setuptools.packages.find]
 where = ["src/"]
-include = ["util_common"]
+include = ["util_common*", "util_common/*"]
 
 [tool.sys-dependencies]
 apt = ["libmagic1", "rar", "p7zip-full"]

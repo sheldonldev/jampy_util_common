@@ -2,7 +2,7 @@ import os
 import posixpath
 import shutil
 from pathlib import Path
-from typing import Callable, Iterable, List, Literal, Optional, Tuple, Union, get_args
+from typing import Callable, Dict, Iterable, List, Literal, Optional, Tuple, Union, get_args
 
 import natsort
 
@@ -57,6 +57,40 @@ IGNORE_NAMES = [
     "__MACOSX",
     ".DS_Store",
 ]
+MIME_TYPES: Dict[str, str] = {
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "png": "image/png",
+    "gif": "image/gif",
+    "pdf": "application/pdf",
+    "docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    # Add more as needed
+}
+
+
+def get_base64_header(file_extension: str) -> str:
+    """
+    Adds a Base64 header to the provided file content.
+
+    Parameters:
+    - file_content: The raw bytes of the file.
+    - file_extension: The file extension (e.g., 'png', 'pdf').
+
+    Returns:
+    - A Base64 string header.
+
+    Usage:
+    get_base64_header(file_extension) + ',' + {base64_string}
+    """
+    # Get the MIME type for the file extension
+    mime_type = MIME_TYPES.get(file_extension.lower())
+    if not mime_type:
+        raise ValueError(f"Unsupported file extension: {file_extension}")
+
+    # Create the Base64 data URL with the appropriate header
+    base64_string = f"data:{mime_type};base64"
+    return base64_string
 
 
 def normalize_path(
@@ -99,36 +133,55 @@ def sort_paths(path_iter: Iterable[str | Path]) -> List[Path]:
     ]
 
 
-def remove_file(path: Path | str) -> None:
-    path = Path(path)
-    if path.exists():
-        if path.is_file():
-            os.remove(path)
-        else:
-            log.warning(f"{path} is a folder!")
-    else:
-        log.warning(f"{path} not exists!")
+def ensure_parent(path: Path | str) -> None:
+    Path(path).parent.mkdir(exist_ok=True, parents=True)
 
 
-def remove_folder(path: Path | str) -> None:
+def move(src_path: Path | str, dst_path: Path | str) -> None:
+    ensure_parent(dst_path)
+    try:
+        shutil.move(src_path, dst_path)
+    except Exception as e:
+        log.warning(f"move failed: {e}")
+
+
+def duplicate(src_path: Path | str, dst_path: Path | str) -> None:
+    ensure_parent(dst_path)
+    if Path(src_path).is_file():
+        shutil.copyfile(src_path, dst_path)
+    elif Path(src_path).is_dir():
+        shutil.copytree(src_path, dst_path)
+
+
+def remove_folder(path: Path | str, trash_dir: Optional[Path | str] = None) -> None:
     path = Path(path)
     if path.exists():
         if path.is_dir():
-            shutil.rmtree(path)
+            if trash_dir is None:
+                shutil.rmtree(path)
+            else:
+                move(path, Path(trash_dir).joinpath(path.name))
         else:
             log.warning(f"{path} is a file!")
     else:
         log.warning(f"{path} not exists!")
 
 
-def ensure_dir(path: Path | str) -> Path:
+def remove_file(path: Path | str, trash_dir: Optional[Path | str] = None) -> None:
     path = Path(path)
-    if (not path.exists()) or path.is_file():
-        path.mkdir(parents=True, exist_ok=True)
-    return path
+    if path.exists():
+        if path.is_file():
+            if trash_dir is None:
+                os.remove(path)
+            else:
+                move(path, Path(trash_dir).joinpath(path.name))
+        else:
+            log.warning(f"{path} is a folder!")
+    else:
+        log.warning(f"{path} not exists!")
 
 
-def clear_dir(path: Path | str) -> Path:
+def clear_folder(path: Path | str) -> Path:
     path = Path(path)
     remove_folder(path)
     path.mkdir(parents=True, exist_ok=True)
@@ -143,49 +196,52 @@ def get_basename(path: str | Path) -> str:
     return os.path.basename(str(path))
 
 
-def split_basename(path: str | Path) -> Tuple[str, str]:
+def split_basename(path: str | Path, strip_dot: bool = True) -> Tuple[str, str]:
     name, ext = os.path.splitext(get_basename(path))
-    return name, ext.strip(".")
+    if strip_dot is True:
+        ext = ext.strip(".")
+    return name, ext.lower()
 
 
 def get_basename_without_extension(path: str | Path) -> str:
     return split_basename(path)[0]
 
 
-def get_extension(path: str | Path) -> str:
-    return split_basename(path)[1]
+def get_extension(path: str | Path, strip_dot=True) -> str:
+    return split_basename(path, strip_dot)[1]
 
 
-def guess_extension_from_mime(mime: str) -> Optional[FileExt]:
-    if "zip" in mime:
-        return "zip"
+def guess_extension_from_mime(mime: Optional[str]) -> Optional[FileExt]:
+    if isinstance(mime, str):
+        if "zip" in mime:
+            return "zip"
 
-    if "rar" in mime:
-        return "rar"
+        if "rar" in mime:
+            return "rar"
 
-    if "7z" in mime:
-        return "7z"
+        if "7z" in mime:
+            return "7z"
 
-    if "word" in mime and "document" not in mime:
-        return "doc"
+        if "word" in mime and "document" not in mime:
+            return "doc"
 
-    if "word" in mime and "document" in mime:
-        return "docx"
+        if "word" in mime and "document" in mime:
+            return "docx"
 
-    if "excel" in mime:
-        return "xls"
+        if "excel" in mime:
+            return "xls"
 
-    if "sheet" in mime:
-        return "xlsx"
+        if "sheet" in mime:
+            return "xlsx"
 
-    if "jpeg" in mime or "jpg" in mime:
-        return "jpg"
+        if "jpeg" in mime or "jpg" in mime:
+            return "jpg"
 
-    if "png" in mime:
-        return "png"
+        if "png" in mime:
+            return "png"
 
-    if "pdf" in mime:
-        return "pdf"
+        if "pdf" in mime:
+            return "pdf"
 
     return None
 
@@ -198,7 +254,7 @@ def recursive_list_named_children(
     return paths
 
 
-def recursive_list_file(folder: str | Path) -> Iterable[Path]:
+def recursive_list_files(folder: str | Path) -> Iterable[Path]:
     for root, _, files in os.walk(folder):
         for file_name in [x for x in files if x not in IGNORE_NAMES]:
             yield Path(os.path.join(root, file_name))

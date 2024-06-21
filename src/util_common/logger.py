@@ -44,8 +44,8 @@ class LogSettings(BaseModel):
     name: Optional[str] = None
     level: _LogLevel = DEFAULT_LEVEL
     save_file_or_dir: Optional[Path] = None
-    rich_handler: bool = False
-    json_logger: bool = False
+    rich_handler: bool = False  # rich stream print
+    json_logger: bool = False  # save log file as .jsonl
 
 
 class CustomJsonFormatter(jsonlogger.JsonFormatter):
@@ -137,11 +137,21 @@ def _init_logger(
     return logger
 
 
-def _create_log_file(log_path: Path, name: Optional[str]) -> Path:
+def _create_log_file(log_path: Path, name: Optional[str] = None) -> Path:
+    """
+    if log_path not exist:
+        folder named log_path will be created,
+        then '{name}.log' will be the file name.
+    if log_path exists:
+        if is a file, use the file as log file,
+        if is a folder, use the '{name}.log' as file name.
+    """
+    if not log_path.exists():
+        log_path.mkdir(exist_ok=True, parents=True)
+
     if log_path.is_dir():
         if name is None:
-            log_path = log_path.joinpath("log")
-        else:
-            log_path = log_path.joinpath(f"{name}.log")
-    log_path.parent.mkdir(exist_ok=True, parents=True)
+            name = ""
+        log_path = log_path.joinpath(f"{name}.log")
+
     return log_path
