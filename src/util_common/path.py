@@ -150,7 +150,7 @@ def duplicate(src_path: Path | str, dst_path: Path | str) -> None:
     if Path(src_path).is_file():
         shutil.copyfile(src_path, dst_path)
     elif Path(src_path).is_dir():
-        shutil.copytree(src_path, dst_path)
+        shutil.copytree(src_path, dst_path, dirs_exist_ok=True)
 
 
 def remove_folder(path: Path | str, trash_dir: Optional[Path | str] = None) -> None:
