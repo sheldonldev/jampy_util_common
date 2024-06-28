@@ -137,6 +137,14 @@ def ensure_parent(path: Path | str) -> None:
     Path(path).parent.mkdir(exist_ok=True, parents=True)
 
 
+def ensure_folder(path: Path | str) -> None:
+    path = Path(path)
+    if not path.exists():
+        path.mkdir(parents=True)
+    elif path.is_file():
+        raise FileExistsError()
+
+
 def move(src_path: Path | str, dst_path: Path | str) -> None:
     ensure_parent(dst_path)
     try:
