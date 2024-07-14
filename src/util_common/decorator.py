@@ -8,22 +8,21 @@ from ._log import log
 
 def ticktock(name=None, print_fn=log.info):
     def decorator(fn: Callable):
+        def _info(elapsed):
+            return (fn.__name__ if name is None else name) + f">>> Elapsed time: {elapsed:.4f} secs"
+
         async def async_wrapper(*args, **kwargs) -> Any:
             start_time = time.time()
             result = await fn(*args, **kwargs)
             elapsed = time.time() - start_time
-            print_fn(
-                (fn.__name__ if name is None else name) + f" >>> Elapsed time: {elapsed:.6f} secs"
-            )
+            print_fn(_info(elapsed))
             return result
 
         def sync_wrapper(*args, **kwargs) -> Any:
             start_time = time.time()
             result = fn(*args, **kwargs)
             elapsed = time.time() - start_time
-            print_fn(
-                (fn.__name__ if name is None else name) + f" >>> Elapsed time: {elapsed:.6f} secs"
-            )
+            print_fn(_info(elapsed))
             return result
 
         if asyncio.iscoroutinefunction(fn):
@@ -72,34 +71,33 @@ def retry(max_attempts: int, delay: int):
 
 def proxy(http_proxy: str = "", https_proxy: str = "", all_proxy: str = ""):
     def decorator(fn: Callable):
-        async def async_wrapper(*args, **kwargs) -> Any:
-            org_http_proxy = os.environ.get("http_proxy", "")
-            org_https_proxy = os.environ.get("https_proxy", "")
-            org_all_proxy = os.environ.get("all_proxy", "")
+        def _get_proxy():
+            http_proxy = os.environ.get("http_proxy", "")
+            https_proxy = os.environ.get("https_proxy", "")
+            all_proxy = os.environ.get("all_proxy", "")
+            return http_proxy, https_proxy, all_proxy
+
+        def _set_proxy(http_proxy, https_proxy, all_proxy):
             os.environ["http_proxy"] = http_proxy
             os.environ["https_proxy"] = https_proxy
             os.environ["all_proxy"] = all_proxy
+
+        async def async_wrapper(*args, **kwargs) -> Any:
+            org_http_proxy, org_https_proxy, org_all_proxy = _get_proxy()
+            _set_proxy(http_proxy, https_proxy, all_proxy)
             try:
                 result = await fn(*args, **kwargs)
             finally:
-                os.environ["http_proxy"] = org_http_proxy
-                os.environ["https_proxy"] = org_https_proxy
-                os.environ["all_proxy"] = org_all_proxy
+                _set_proxy(org_http_proxy, org_https_proxy, org_all_proxy)
             return result
 
         def sync_wrapper(*args, **kwargs) -> Any:
-            org_http_proxy = os.environ.get("http_proxy", "")
-            org_https_proxy = os.environ.get("https_proxy", "")
-            org_all_proxy = os.environ.get("all_proxy", "")
-            os.environ["http_proxy"] = http_proxy
-            os.environ["https_proxy"] = https_proxy
-            os.environ["all_proxy"] = all_proxy
+            org_http_proxy, org_https_proxy, org_all_proxy = _get_proxy()
+            _set_proxy(http_proxy, https_proxy, all_proxy)
             try:
                 result = fn(*args, **kwargs)
             finally:
-                os.environ["http_proxy"] = org_http_proxy
-                os.environ["https_proxy"] = org_https_proxy
-                os.environ["all_proxy"] = org_all_proxy
+                _set_proxy(org_http_proxy, org_https_proxy, org_all_proxy)
             return result
 
         if asyncio.iscoroutinefunction(fn):
