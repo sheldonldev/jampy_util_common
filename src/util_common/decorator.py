@@ -1,7 +1,9 @@
 import asyncio
+import logging
 import os
+import re
 import time
-from typing import Any, Callable
+from typing import Any, Callable, Tuple
 
 from ._log import log
 
@@ -104,5 +106,36 @@ def proxy(http_proxy: str = "", https_proxy: str = "", all_proxy: str = ""):
             return async_wrapper
         else:
             return sync_wrapper
+
+    return decorator
+
+
+def connect_pg(postgres, dbname):
+
+    import psycopg2
+
+    def parse_pg_connection(pg_conn) -> Tuple:
+        regex = '(.+):(.+)@(.+):(.+)'
+        matches = re.match(regex, pg_conn, re.M | re.I)
+        if matches is None:
+            raise Exception("Invalid Postgres connection string!")
+        user, password, host, port = matches.groups()
+        return user, password, host, port
+
+    def decorator(function):
+        def wrapper(**kwargs):
+            user, password, host, port = parse_pg_connection(postgres)
+            con = psycopg2.connect(
+                user=user, password=password, host=host, port=port, database=dbname
+            )
+            logging.info("Database opened successfully")
+            cur = con.cursor()
+            result = function(cur=cur, **kwargs)
+            con.commit()
+            con.close()
+            logging.info("Database closed successfully")
+            return result
+
+        return wrapper
 
     return decorator
