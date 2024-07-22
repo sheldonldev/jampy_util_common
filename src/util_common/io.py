@@ -4,7 +4,7 @@ from typing import Dict, List, Optional
 
 import magic
 
-from .path import FileExt, guess_extension_from_mime
+from util_common.path import FileExt, guess_extension_from_mime
 
 
 def json_to_bytes(

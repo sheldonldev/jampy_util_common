@@ -59,7 +59,10 @@
         "fuck"
     ],
     "cSpell.words": [
-        "psycopg"
+        "gmtime",
+        "psycopg",
+        "pydantic",
+        "pythonjsonlogger"
     ],
     "git.ignoreLimitWarning": true,
     "[python]": {

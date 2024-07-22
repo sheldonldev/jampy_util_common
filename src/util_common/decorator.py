@@ -5,7 +5,7 @@ import re
 import time
 from typing import Any, Callable, Tuple
 
-from ._log import log
+from util_common._log import log
 
 
 def ticktock(name=None, print_fn=log.info):

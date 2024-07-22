@@ -1,5 +1,5 @@
 import logging
 
-from ._cfg import APP_NAME
+from util_common._cfg import APP_NAME
 
 log = logging.getLogger(APP_NAME)

@@ -6,7 +6,7 @@ from typing import Callable, Dict, Iterable, List, Literal, Optional, Tuple, Uni
 
 import natsort
 
-from ._log import log
+from util_common._log import log
 
 TextExt = Literal[
     "txt",
