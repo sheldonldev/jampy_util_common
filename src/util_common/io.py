@@ -8,7 +8,7 @@ from util_common.path import FileExt, guess_extension_from_mime
 
 
 def json_to_bytes(
-    json_: Dict | List,
+    json_: Dict | List | None,
     intent=4,
     ensure_ascii=False,
     encoding="utf-8",
