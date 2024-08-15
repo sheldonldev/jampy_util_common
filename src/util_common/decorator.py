@@ -37,18 +37,6 @@ def ticktock(name=None, print_fn=log.info):
 
 def retry(max_attempts: int, delay: int):
     def decorator(fn: Callable):
-        async def async_wrapper(*args, **kwargs):
-            attempts = 0
-            error = None
-            while attempts < max_attempts:
-                try:
-                    return await fn(*args, **kwargs)
-                except Exception as e:
-                    log.error(f">>> Attempt {attempts + 1} failed. " f"Retry in {delay} seconds.")
-                    attempts += 1
-                    await asyncio.sleep(delay)
-                    error = e
-            raise Exception(f">>> Max attempts exceeded.\nError: {error}")
 
         def sync_wrapper(*args, **kwargs):
             attempts = 0
@@ -57,55 +45,16 @@ def retry(max_attempts: int, delay: int):
                 try:
                     return fn(*args, **kwargs)
                 except Exception as e:
-                    log.error(f">>> Attempt {attempts + 1} failed. " f"Retry in {delay} seconds.")
+                    log.error(
+                        f">>>{fn.__name__} Attempt {attempts + 1} failed. "
+                        f"Retry in {delay} seconds."
+                    )
                     attempts += 1
                     time.sleep(delay)
                     error = e
             raise Exception(f">>> Max attempts exceeded.\nError: {error}")
 
-        if asyncio.iscoroutinefunction(fn):
-            return async_wrapper
-        else:
-            return sync_wrapper
-
-    return decorator
-
-
-def proxy(http_proxy: str = "", https_proxy: str = "", all_proxy: str = ""):
-    def decorator(fn: Callable):
-        def _get_proxy():
-            http_proxy = os.environ.get("http_proxy", "")
-            https_proxy = os.environ.get("https_proxy", "")
-            all_proxy = os.environ.get("all_proxy", "")
-            return http_proxy, https_proxy, all_proxy
-
-        def _set_proxy(http_proxy, https_proxy, all_proxy):
-            os.environ["http_proxy"] = http_proxy
-            os.environ["https_proxy"] = https_proxy
-            os.environ["all_proxy"] = all_proxy
-
-        async def async_wrapper(*args, **kwargs) -> Any:
-            org_http_proxy, org_https_proxy, org_all_proxy = _get_proxy()
-            _set_proxy(http_proxy, https_proxy, all_proxy)
-            try:
-                result = await fn(*args, **kwargs)
-            finally:
-                _set_proxy(org_http_proxy, org_https_proxy, org_all_proxy)
-            return result
-
-        def sync_wrapper(*args, **kwargs) -> Any:
-            org_http_proxy, org_https_proxy, org_all_proxy = _get_proxy()
-            _set_proxy(http_proxy, https_proxy, all_proxy)
-            try:
-                result = fn(*args, **kwargs)
-            finally:
-                _set_proxy(org_http_proxy, org_https_proxy, org_all_proxy)
-            return result
-
-        if asyncio.iscoroutinefunction(fn):
-            return async_wrapper
-        else:
-            return sync_wrapper
+        return sync_wrapper
 
     return decorator
 
@@ -137,5 +86,32 @@ def connect_pg(postgres, dbname):
             return result
 
         return wrapper
+
+    return decorator
+
+
+def proxy(http_proxy: str = "", https_proxy: str = "", all_proxy: str = ""):
+    def decorator(fn: Callable):
+        def _get_proxy():
+            http_proxy = os.environ.get("http_proxy", "")
+            https_proxy = os.environ.get("https_proxy", "")
+            all_proxy = os.environ.get("all_proxy", "")
+            return http_proxy, https_proxy, all_proxy
+
+        def _set_proxy(http_proxy, https_proxy, all_proxy):
+            os.environ["http_proxy"] = http_proxy
+            os.environ["https_proxy"] = https_proxy
+            os.environ["all_proxy"] = all_proxy
+
+        def sync_wrapper(*args, **kwargs) -> Any:
+            org_http_proxy, org_https_proxy, org_all_proxy = _get_proxy()
+            _set_proxy(http_proxy, https_proxy, all_proxy)
+            try:
+                result = fn(*args, **kwargs)
+            finally:
+                _set_proxy(org_http_proxy, org_https_proxy, org_all_proxy)
+            return result
+
+        return sync_wrapper
 
     return decorator
