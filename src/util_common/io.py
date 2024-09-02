@@ -7,14 +7,22 @@ import magic
 from util_common.path import FileExt, guess_extension_from_mime
 
 
+def json_to_str(
+    json_: Dict | List | None,
+    indent=4,
+    ensure_ascii=False,
+):
+    return json.dumps(json_, indent=indent, ensure_ascii=ensure_ascii)
+
+
 def json_to_bytes(
     json_: Dict | List | None,
-    intent=4,
+    indent=4,
     ensure_ascii=False,
     encoding="utf-8",
 ) -> bytes:
     return bytes(
-        json.dumps(json_, indent=intent, ensure_ascii=ensure_ascii),
+        json_to_str(json_, indent=indent, ensure_ascii=ensure_ascii),
         encoding=encoding,
     )
 
