@@ -30,11 +30,9 @@ LOG_KEYS = [
 LOG_FORMAT = (
     "%(blue)s%(asctime)sZ%(reset)s | "
     "%(log_color)s%(levelname)s%(reset)s | "
-    "%(cyan)s%(name)s:"
-    "%(filename)s:"
-    "%(lineno)s%(reset)s | "
-    "%(log_color)s%(process)d >>> "
-    "%(message)s%(reset)s"
+    "%(cyan)s%(name)s:%(filename)s:%(lineno)s%(reset)s | "
+    "%(blue)s%(process)d:%(thread)d%(reset)s >> "
+    "%(log_color)s%(message)s%(reset)s"
 )
 
 DEFAULT_LEVEL: _LogLevel = "info"

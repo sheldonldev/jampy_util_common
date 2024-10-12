@@ -177,7 +177,7 @@ def remove_folder(path: Path | str, trash_dir: Optional[Path | str] = None) -> N
         log.warning(f"{path} not exists!")
 
 
-def remove_file(path: Path | str, trash_dir: Optional[Path | str] = None) -> None:
+def remove_file(path: Path | str, trash_dir: Optional[Path | str] = None, exists=False) -> None:
     path = Path(path)
     if path.exists():
         if path.is_file():
@@ -186,9 +186,11 @@ def remove_file(path: Path | str, trash_dir: Optional[Path | str] = None) -> Non
             else:
                 move(path, Path(trash_dir).joinpath(path.name))
         else:
-            log.warning(f"{path} is a folder!")
+            if exists is False:
+                log.warning(f"{path} is a folder!")
     else:
-        log.warning(f"{path} not exists!")
+        if exists is False:
+            log.warning(f"{path} not exists!")
 
 
 def clear_folder(path: Path | str) -> Path:
